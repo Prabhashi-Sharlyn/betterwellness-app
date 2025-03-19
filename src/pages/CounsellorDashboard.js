@@ -1,0 +1,242 @@
+import React, { useState, useEffect } from 'react';
+import { fetchUserAttributes } from '@aws-amplify/auth';
+import '../styles/CounsellorDashboard.css'; // Import CSS
+
+function CounsellorDashboard() {
+  const [user, setUser] = useState(null);
+  const [bookingRequests, setBookingRequests] = useState([]); // Renamed to bookingRequests
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [confirmedBookings, setConfirmedBookings] = useState([]);
+  const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
+  const [newBookingDetails, setNewBookingDetails] = useState({
+    date: '',
+    time: '',
+    counselorName: '',
+    specialization: ''
+  });
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const attributes = await fetchUserAttributes();
+        setUser(attributes);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    }
+
+    fetchUserData();
+
+    // Mock data for booking requests (Replace with API call)
+    setBookingRequests([
+      { id: 1, counsellor: 'Dr. John Doe', date: 'March 20, 2:00 PM', specialization: 'Anxiety' },
+      { id: 2, counsellor: 'Dr. Jane Smith', date: 'March 21, 4:00 PM', specialization: 'Relationship Counseling' },
+    ]);
+  }, []);
+
+  const openChatWindow = (booking) => {
+    setSelectedBooking(booking);
+    setChatHistory([
+      { from: 'Counsellor', message: 'Hello, how can I help you today?' },
+      { from: 'Customer', message: 'I am feeling anxious and need some help.' },
+    ]);
+    setIsChatOpen(true); // Open the chat window
+  };
+
+  const closeChatWindow = () => {
+    setIsChatOpen(false); // Close the chat window
+  };
+
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      setChatHistory([...chatHistory, { from: 'Customer', message: newMessage }]);
+      setNewMessage('');
+
+      // Integrate with messaging service here to send the message
+      console.log('Sending message:', newMessage);
+    }
+  };
+
+  const openBookingForm = () => {
+    setIsBookingFormOpen(true);
+  };
+
+  const closeBookingForm = () => {
+    setIsBookingFormOpen(false);
+  };
+
+  const handleConfirmBooking = () => {
+    // Add new booking to confirmed bookings
+    setConfirmedBookings([
+      ...confirmedBookings,
+      {
+        id: confirmedBookings.length + 1,
+        counsellor: newBookingDetails.counselorName,
+        date: newBookingDetails.date,
+        time: newBookingDetails.time,
+        specialization: newBookingDetails.specialization
+      }
+    ]);
+
+    // Remove from booking requests
+    setBookingRequests(bookingRequests.filter((booking) => booking.id !== selectedBooking.id));
+
+    setIsBookingFormOpen(false); // Close the booking form
+    setIsChatOpen(false); // Close the chat window after booking
+  };
+
+  const handleBookingDetailsChange = (e) => {
+    const { name, value } = e.target;
+    setNewBookingDetails({
+      ...newBookingDetails,
+      [name]: value
+    });
+  };
+
+  return (
+    <div className="dashboard-container">
+      {/* Header Section */}
+      <div className="welcome-box">
+        {user && <p className="welcome-text">Welcome, {user.email}</p>}
+      </div>
+
+      {/* Page Title */}
+      <h1 className="page-title">Booking Requests</h1>
+
+      {/* Table for Booking Requests */}
+      <div className="table-container">
+        <table className="counsellor-table">
+          <thead>
+            <tr>
+              <th>Counsellor</th>
+              <th>Date</th>
+              <th>Specialization</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookingRequests.map((booking) => (
+              <tr key={booking.id}>
+                <td>{booking.counsellor}</td>
+                <td>{booking.date}</td>
+                <td>{booking.specialization}</td>
+                <td>
+                  <button className="book-btn" onClick={() => openChatWindow(booking)}>
+                    Request
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Chat Modal Popup */}
+      {isChatOpen && selectedBooking && (
+        <div className="chat-popup">
+          <div className="chat-window">
+            <div className="chat-header">
+              <h2>Chat with {selectedBooking.counsellor}</h2>
+              <button className="close-chat-btn" onClick={closeChatWindow}>X</button>
+            </div>
+            <div className="chat-history">
+              {chatHistory.map((chat, index) => (
+                <div key={index} className={chat.from === 'Customer' ? 'customer-message' : 'counsellor-message'}>
+                  <p><strong>{chat.from}:</strong> {chat.message}</p>
+                </div>
+              ))}
+            </div>
+            <div className="message-input">
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type your message here..."
+              />
+              <button onClick={handleSendMessage}>Send</button>
+              <button className="book-session-btn" onClick={openBookingForm}>Book</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Form Popup */}
+      {isBookingFormOpen && (
+        <div className="booking-form-popup">
+          <div className="booking-form-window">
+            <h2>Confirm Your Booking</h2>
+            <label>
+              Date:
+              <input
+                type="date"
+                name="date"
+                value={newBookingDetails.date}
+                onChange={handleBookingDetailsChange}
+              />
+            </label>
+            <label>
+              Time:
+              <input
+                type="time"
+                name="time"
+                value={newBookingDetails.time}
+                onChange={handleBookingDetailsChange}
+              />
+            </label>
+            <label>
+              Counselor:
+              <input
+                type="text"
+                name="counselorName"
+                value={newBookingDetails.counselorName}
+                onChange={handleBookingDetailsChange}
+              />
+            </label>
+            <label>
+              Specialization:
+              <input
+                type="text"
+                name="specialization"
+                value={newBookingDetails.specialization}
+                onChange={handleBookingDetailsChange}
+              />
+            </label>
+            <button onClick={handleConfirmBooking}>Confirm Booking</button>
+            <button onClick={closeBookingForm}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Table for Confirmed Bookings */}
+      {confirmedBookings.length > 0 && (
+        <div className="confirmed-bookings-container">
+          <h2>Confirmed Bookings</h2>
+          <table className="counsellor-table">
+            <thead>
+              <tr>
+                <th>Counsellor</th>
+                <th>Date</th>
+                <th>Specialization</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {confirmedBookings.map((booking) => (
+                <tr key={booking.id}>
+                  <td>{booking.counsellor}</td>
+                  <td>{booking.date}</td>
+                  <td>{booking.specialization}</td>
+                  <td>Confirmed</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default CounsellorDashboard;

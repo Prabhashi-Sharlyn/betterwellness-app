@@ -1,0 +1,203 @@
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(to right, #ebf4ff, #dceeff);
+  padding: 20px;
+  position: relative; /* Add this to allow absolute positioning inside it */
+}
+
+/* Welcome Box */
+.welcome-box {
+  position: absolute;
+  top: 20px; /* Adjust top position as needed */
+  right: 20px; /* Adjust right position as needed */
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Welcome Text */
+.welcome-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c5282;
+}
+
+/* Page Title */
+.page-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #2b6cb0;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Table Container */
+.table-container {
+  width: 80%;
+  max-width: 800px;
+}
+
+/* Counsellor Table */
+.counsellor-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.counsellor-table th {
+  background: #2b6cb0;
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.counsellor-table td {
+  padding: 12px;
+  text-align: center;
+  font-size: 15px;
+  color: #333;
+}
+
+.even-row {
+  background: #f7fafc;
+}
+
+.odd-row {
+  background: #ffffff;
+}
+
+/* Buttons */
+.book-btn,
+.message-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.book-btn {
+  background: #38a169;
+  margin-right: 5px;
+}
+
+.book-btn:hover {
+  background: #2f855a;
+}
+
+.message-btn {
+  background: #3182ce;
+}
+
+.message-btn:hover {
+  background: #2b6cb0;
+}
+
+/* Chat Popup Styles */
+.chat-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.chat-window {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.close-chat-btn {
+  background: #e53e3e;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.close-chat-btn:hover {
+  background: #c53030;
+}
+
+.chat-history {
+  margin-top: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.customer-message {
+  text-align: right;
+  background: #ebf4ff;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.counsellor-message {
+  text-align: left;
+  background: #f7fafc;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.message-input {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.message-input textarea {
+  width: 80%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  resize: none;
+}
+
+.message-input button {
+  padding: 10px 20px;
+  background: #38a169;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.message-input button:hover {
+  background: #2f855a;
+}
