@@ -14,13 +14,41 @@ function CustomerDashboard() {
     async function fetchUserData() {
       try {
         const attributes = await fetchUserAttributes();
-        setUser(attributes);
+        // setUser(attributes);
+
+        const userData = {
+          uuid: attributes.sub,  // Unique ID of the user
+          email: attributes.email,
+          name: attributes.name,
+          role: attributes['custom:userType'], // Assuming role is stored as a custom attribute
+          specialization: attributes['custom:specialization'] || '',
+        };
+
+        setUser(userData);
+
+        // Send data to the backend to store in RDS
+        await saveUserToDatabase(userData);
+
       } catch (error) {
         console.error('Error fetching user:', error);
       }
     }
 
+    async function fetchCounsellors() {
+      try {
+        const response = await fetch('http://localhost:8080/api/users/counsellors');
+        if (!response.ok) {
+          throw new Error('Failed to fetch counsellors');
+        }
+        const data = await response.json();
+        setCounsellors(data); // Assuming API returns an array of counsellors
+      } catch (error) {
+        console.error('Error fetching counsellors:', error);
+      }
+    }
+
     fetchUserData();
+    fetchCounsellors();
 
     // Mock data for counsellors (Replace with API call)
     setCounsellors([
@@ -52,11 +80,31 @@ function CustomerDashboard() {
     }
   };
 
+  const saveUserToDatabase = async (userData) => {
+    console.log('User Data', userData);
+    try {
+      const response = await fetch('http://localhost:8080/api/users/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.text();
+      if (response.ok) {
+        console.log('Success',data);
+      } else {
+        console.error('Error ', data);
+      }
+    } catch (error) {
+      console.error('Error sending user data:', error);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {/* Header Section */}
       <div className="welcome-box">
-        {user && <p className="welcome-text">Welcome, {user.email}</p>}
+        {user && <p className="welcome-text">Welcome, {user.name}</p>}
       </div>
 
       {/* Page Title */}
@@ -67,15 +115,15 @@ function CustomerDashboard() {
         <table className="counsellor-table">
           <thead>
             <tr>
-              <th>Name</th>
+              <th>Counsellor</th>
               <th>Specialization</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {counsellors.map((counsellor) => (
-              <tr key={counsellor.id}>
-                <td>{counsellor.name}</td>
+              <tr key={counsellor.uuid}>
+                <td>Dr. {counsellor.name}</td>
                 <td>{counsellor.specialization}</td>
                 <td>
                   <button className="book-btn" onClick={() => openChatWindow(counsellor)}>
@@ -93,7 +141,7 @@ function CustomerDashboard() {
         <div className="chat-popup">
           <div className="chat-window">
             <div className="chat-header">
-              <h2>Chat with {selectedCounsellor.name}</h2>
+              <h2>Chat with Dr. {selectedCounsellor.name}</h2>
               <button className="close-chat-btn" onClick={closeChatWindow}>X</button>
             </div>
             <div className="chat-history">

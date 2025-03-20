@@ -43,8 +43,8 @@
   max-width: 800px;
 }
 
-/* Counsellor Table */
-.counsellor-table {
+/* Customer Table */
+.customer-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
@@ -53,7 +53,7 @@
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.counsellor-table th {
+.customer-table th {
   background: #2b6cb0;
   color: white;
   padding: 12px;
@@ -61,7 +61,7 @@
   font-size: 16px;
 }
 
-.counsellor-table td {
+.customer-table td {
   padding: 12px;
   text-align: center;
   font-size: 15px;

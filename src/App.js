@@ -13,6 +13,7 @@ Amplify.configure(awsExports);
 
 function AuthenticatedApp({ user, signOut }) {
   const [userRole, setUserRole] = useState(null);
+  // const [counsellerSpecialization, setCounsellerSpecialization] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +27,10 @@ function AuthenticatedApp({ user, signOut }) {
 
           const role = attributes['custom:userType'];
           setUserRole(role);
+
+          const specialization = attributes['custom:specialization'];
+          console.log('specialization', specialization);
+          // setCounsellerSpecialization(specialization);
 
           if (role === 'customer') {
             navigate('/customer', { replace: true });
@@ -81,10 +86,19 @@ function App() {
                 placeholder: 'Confirm your password',
                 required: true,
               },
+              name: {
+                label: 'Name',
+                placeholder: 'Enter Name',
+                required: true,
+              },
               'custom:userType': {
                 label: 'Role',
                 placeholder: 'Enter your role (customer/counsellor)',
                 required: true,
+              },
+              'custom:specialization': {
+                label: 'Specialization',
+                placeholder: 'Enter counsellor specialization',
               },
             },
           }}

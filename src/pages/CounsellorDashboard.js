@@ -22,7 +22,21 @@ function CounsellorDashboard() {
     async function fetchUserData() {
       try {
         const attributes = await fetchUserAttributes();
-        setUser(attributes);
+        // setUser(attributes);
+
+        const userData = {
+          uuid: attributes.sub,  // Unique ID of the user
+          email: attributes.email,
+          name: attributes.name,
+          role: attributes['custom:userType'], // Assuming role is stored as a custom attribute
+          specialization: attributes['custom:specialization'] || '',
+        };
+
+        setUser(userData);
+
+        // Send data to the backend to store in RDS
+        await saveUserToDatabase(userData);
+
       } catch (error) {
         console.error('Error fetching user:', error);
       }
@@ -96,11 +110,31 @@ function CounsellorDashboard() {
     });
   };
 
+  const saveUserToDatabase = async (userData) => {
+    console.log('User Data', userData);
+    try {
+      const response = await fetch('http://localhost:8080/api/users/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.text();
+      if (response.ok) {
+        console.log('Success',data);
+      } else {
+        console.error('Error ', data);
+      }
+    } catch (error) {
+      console.error('Error sending user data:', error);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {/* Header Section */}
       <div className="welcome-box">
-        {user && <p className="welcome-text">Welcome, {user.email}</p>}
+        {user && <p className="welcome-text">Welcome, Dr. {user.name}</p>}
       </div>
 
       {/* Page Title */}
@@ -108,12 +142,12 @@ function CounsellorDashboard() {
 
       {/* Table for Booking Requests */}
       <div className="table-container">
-        <table className="counsellor-table">
+        <table className="customer-table">
           <thead>
             <tr>
-              <th>Counsellor</th>
+              <th>Customer</th>
               <th>Date</th>
-              <th>Specialization</th>
+              <th>Session</th>
               <th>Actions</th>
             </tr>
           </thead>
