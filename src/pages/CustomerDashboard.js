@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUserAttributes } from '@aws-amplify/auth';
-import '../styles/CustomerDashboard.css'; // Import CSS
+import '../styles/CustomerDashboard.css';
 
 function CustomerDashboard() {
   const [user, setUser] = useState(null);
@@ -11,90 +11,62 @@ function CustomerDashboard() {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchUserData() {
+    const fetchUserData = async () => {
       try {
         const attributes = await fetchUserAttributes();
-        // setUser(attributes);
-
         const userData = {
-          uuid: attributes.sub,  // Unique ID of the user
+          uuid: attributes.sub,
           email: attributes.email,
           name: attributes.name,
-          role: attributes['custom:userType'], // Assuming role is stored as a custom attribute
+          role: attributes['custom:userType'],
           specialization: attributes['custom:specialization'] || '',
         };
-
         setUser(userData);
-
-        // Send data to the backend to store in RDS
         await saveUserToDatabase(userData);
-
       } catch (error) {
         console.error('Error fetching user:', error);
       }
-    }
+    };
 
-    async function fetchCounsellors() {
+    const fetchCounsellors = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/users/counsellors');
-        if (!response.ok) {
-          throw new Error('Failed to fetch counsellors');
-        }
+        if (!response.ok) throw new Error('Failed to fetch counsellors');
         const data = await response.json();
-        setCounsellors(data); // Assuming API returns an array of counsellors
+        setCounsellors(data);
       } catch (error) {
         console.error('Error fetching counsellors:', error);
       }
-    }
+    };
 
     fetchUserData();
     fetchCounsellors();
-
-    // Mock data for counsellors (Replace with API call)
-    setCounsellors([
-      { id: 1, name: 'Dr. John Doe', specialization: 'Anxiety' },
-      { id: 2, name: 'Dr. Jane Smith', specialization: 'Relationship Counseling' },
-    ]);
   }, []);
 
   const openChatWindow = (counsellor) => {
     setSelectedCounsellor(counsellor);
-    setChatHistory([
-      { from: 'Counsellor', message: 'Hello, how can I help you today?' },
-      { from: 'Customer', message: 'I am feeling anxious and need some help.' },
-    ]);
-    setIsChatOpen(true); // Open the chat window
+    setChatHistory([ { from: 'Counsellor', message: 'Hello, how can I help you today?' } ]);
+    setIsChatOpen(true);
   };
 
-  const closeChatWindow = () => {
-    setIsChatOpen(false); // Close the chat window
-  };
+  const closeChatWindow = () => setIsChatOpen(false);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       setChatHistory([...chatHistory, { from: 'Customer', message: newMessage }]);
       setNewMessage('');
-      
-      // Integrate with messaging service here to send the message
-      console.log('Sending message:', newMessage);
     }
   };
 
   const saveUserToDatabase = async (userData) => {
-    console.log('User Data', userData);
     try {
       const response = await fetch('http://localhost:8080/api/users/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       });
-
       const data = await response.text();
-      if (response.ok) {
-        console.log('Success',data);
-      } else {
-        console.error('Error ', data);
-      }
+      if (!response.ok) throw new Error(data);
     } catch (error) {
       console.error('Error sending user data:', error);
     }
@@ -102,15 +74,8 @@ function CustomerDashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Header Section */}
-      <div className="welcome-box">
-        {user && <p className="welcome-text">Welcome, {user.name}</p>}
-      </div>
-
-      {/* Page Title */}
+      <div className="welcome-box">{user && <p className="welcome-text">Welcome, {user.name}</p>}</div>
       <h1 className="page-title">Available Counsellors</h1>
-
-      {/* Table for Counsellors */}
       <div className="table-container">
         <table className="counsellor-table">
           <thead>
@@ -125,18 +90,12 @@ function CustomerDashboard() {
               <tr key={counsellor.uuid}>
                 <td>Dr. {counsellor.name}</td>
                 <td>{counsellor.specialization}</td>
-                <td>
-                  <button className="book-btn" onClick={() => openChatWindow(counsellor)}>
-                    Book Session
-                  </button>
-                </td>
+                <td><button className="book-btn" onClick={() => openChatWindow(counsellor)}>Book Session</button></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {/* Chat Modal Popup */}
       {isChatOpen && (
         <div className="chat-popup">
           <div className="chat-window">
@@ -152,11 +111,7 @@ function CustomerDashboard() {
               ))}
             </div>
             <div className="message-input">
-              <textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message here..."
-              />
+              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type your message here..." />
               <button onClick={handleSendMessage}>Send</button>
             </div>
           </div>
