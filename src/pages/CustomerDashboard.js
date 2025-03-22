@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { fetchUserAttributes } from '@aws-amplify/auth';
-import '../styles/CustomerDashboard.css';
+import React, { useState, useEffect } from "react";
+import { fetchUserAttributes } from "@aws-amplify/auth";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import "../styles/CustomerDashboard.css";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 function CustomerDashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [counsellors, setCounsellors] = useState([]);
   const [selectedCounsellor, setSelectedCounsellor] = useState(null);
-  const [chatHistory, setChatHistory] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  // const [stompClient, setStompClient] = useState(null);
 
+  // Fetch user details and counselor list
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -18,24 +24,25 @@ function CustomerDashboard() {
           uuid: attributes.sub,
           email: attributes.email,
           name: attributes.name,
-          role: attributes['custom:userType'],
-          specialization: attributes['custom:specialization'] || '',
+          role: attributes["custom:userType"],
+          specialization: attributes["custom:specialization"] || "",
         };
         setUser(userData);
         await saveUserToDatabase(userData);
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error("Error fetching user:", error);
       }
     };
 
     const fetchCounsellors = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/users/counsellors');
-        if (!response.ok) throw new Error('Failed to fetch counsellors');
+        const response = await fetch("http://localhost:8080/api/users/counsellors");
+        if (!response.ok) throw new Error("Failed to fetch counsellors");
         const data = await response.json();
+        console.log('data', data);
         setCounsellors(data);
       } catch (error) {
-        console.error('Error fetching counsellors:', error);
+        console.error("Error fetching counsellors:", error);
       }
     };
 
@@ -43,34 +50,131 @@ function CustomerDashboard() {
     fetchCounsellors();
   }, []);
 
+  // // Establish WebSocket connection
+  // useEffect(() => {
+  //   const socket = new SockJS("http://localhost:8082/ws");
+  //   const client = new Client({
+  //     webSocketFactory: () => socket,
+  //     reconnectDelay: 5000,
+  //     debug: (str) => console.log(str),
+  //     onConnect: () => {
+  //       console.log("Connected to WebSocket");
+  //       console.log("User.name", user.name);
+
+  //       // Subscribe to the chat topic
+  //       client.subscribe("/topic/chat", (message) => {
+  //         const receivedMessage = JSON.parse(message.body);
+  //         console.log('receivedMessage', receivedMessage)
+  //         setChatHistory((prevMessages) => [...prevMessages, receivedMessage]);
+  //       });
+
+  //       // Send a JOIN message once connected
+  //       client.publish({
+  //         destination: "/app/chat.addUser",  // Destination for the server-side method
+  //         body: JSON.stringify({
+  //           sender: user.name,
+  //           content: "Hi",
+  //           type: "JOIN",
+  //         }),
+  //       });
+  //     },
+  //     onStompError: (error) => console.error("STOMP Error:", error),
+  //     connectHeaders: {
+  //       username: "Tharindu"  // Send the username in the connection headers
+  //     }
+  //   });
+
+  //   client.activate();
+  //   setStompClient(client);
+
+  //   return () => {
+  //     client.deactivate();
+  //   };
+  // }, []); 
+
   const openChatWindow = (counsellor) => {
     setSelectedCounsellor(counsellor);
-    setChatHistory([ { from: 'Counsellor', message: 'Hello, how can I help you today?' } ]);
     setIsChatOpen(true);
   };
 
   const closeChatWindow = () => setIsChatOpen(false);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      setChatHistory([...chatHistory, { from: 'Customer', message: newMessage }]);
-      setNewMessage('');
-    }
-  };
+  // const handleSendMessage = () => {
+  //   console.log('username', user.name)
+  //   if (newMessage.trim() && stompClient) {
+  //     const chatMessage = {
+  //       sender: user.name,
+  //       content: newMessage,
+  //       type: 'CHAT',
+  //       // to: selectedCounsellor.name,
+  //     };
+
+  //     stompClient.publish({
+  //       destination: "/app/chat.sendMessage",
+  //       body: JSON.stringify(chatMessage),
+  //     });
+
+  //     setChatHistory([...chatHistory, chatMessage]);
+  //     setNewMessage("");
+  //   }
+  // };
 
   const saveUserToDatabase = async (userData) => {
     try {
-      const response = await fetch('http://localhost:8080/api/users/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:8080/api/users/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
       const data = await response.text();
       if (!response.ok) throw new Error(data);
     } catch (error) {
-      console.error('Error sending user data:', error);
+      console.error("Error sending user data:", error);
     }
   };
+
+  console.log('Counsellor', counsellors)
+  const sendChatRequest = async (selectedCounsellor) => {
+    try {
+      const response = await fetch("http://localhost:8082/api/messages/sendRequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          senderId: user?.uuid,
+          receiverId: selectedCounsellor?.uuid,
+          customerName: user?.name,
+          session: selectedCounsellor?.specialization,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text(); // Read error response
+        throw new Error(`Failed to send message: ${errorText}`);
+      }
+  
+      console.log("Chat Request sent successfully!");
+    } catch (error) {
+      console.error("Error sending chat request:", error.message);
+    }
+  };
+
+  const handleBookSession = (selectedCounsellor) => {
+    if (!user) {
+      console.error("User data is not available yet!");
+      return;
+    }
+    if (!selectedCounsellor) {
+      console.error("No counsellor selected!");
+      return;
+    }
+    sendChatRequest(selectedCounsellor);
+    const userData = { username: user.name, userType: user.role };
+    console.log("Navigating to /chat with state:", userData); // Debugging log
+    navigate("/chat", { state: userData, replace: true });
+  };
+  
 
   return (
     <div className="dashboard-container">
@@ -82,7 +186,7 @@ function CustomerDashboard() {
             <tr>
               <th>Counsellor</th>
               <th>Specialization</th>
-              <th>Actions</th>
+              <th>Book Session</th>
             </tr>
           </thead>
           <tbody>
@@ -90,33 +194,46 @@ function CustomerDashboard() {
               <tr key={counsellor.uuid}>
                 <td>Dr. {counsellor.name}</td>
                 <td>{counsellor.specialization}</td>
-                <td><button className="book-btn" onClick={() => openChatWindow(counsellor)}>Book Session</button></td>
+                <td>
+                  <button className="book-btn" onClick={() => handleBookSession(counsellor)}>
+                    Start Chat
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {isChatOpen && (
+
+      {/* {isChatOpen && (
         <div className="chat-popup">
           <div className="chat-window">
             <div className="chat-header">
               <h2>Chat with Dr. {selectedCounsellor.name}</h2>
-              <button className="close-chat-btn" onClick={closeChatWindow}>X</button>
+              <button className="close-chat-btn" onClick={closeChatWindow}>
+                X
+              </button>
             </div>
             <div className="chat-history">
               {chatHistory.map((chat, index) => (
-                <div key={index} className={chat.from === 'Customer' ? 'customer-message' : 'counsellor-message'}>
-                  <p><strong>{chat.from}:</strong> {chat.message}</p>
+                <div key={index} className={chat.sender === user.name ? "customer-message" : "counsellor-message"}>
+                  <p>
+                    <strong>{chat.sender}:</strong> {chat.content}
+                  </p>
                 </div>
               ))}
             </div>
             <div className="message-input">
-              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type your message here..." />
-              <button onClick={handleSendMessage}>Send</button>
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type your message here..."
+              />
+              { <button onClick={handleSendMessage}>Send</button> }
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

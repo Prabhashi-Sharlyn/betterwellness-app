@@ -2,10 +2,11 @@ import './App.css';
 import { Amplify } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { fetchUserAttributes } from '@aws-amplify/auth';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import '@aws-amplify/ui-react/styles.css';
 import CustomerDashboard from './pages/CustomerDashboard';
 import CounsellorDashboard from './pages/CounsellorDashboard';
+import ChatComponent from './pages/ChatComponent';
 import awsExports from './aws-exports';
 import { useState, useEffect } from 'react';
 
@@ -15,6 +16,7 @@ function AuthenticatedApp({ user, signOut }) {
   const [userRole, setUserRole] = useState(null);
   // const [counsellerSpecialization, setCounsellerSpecialization] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     let isMounted = true;
@@ -32,6 +34,11 @@ function AuthenticatedApp({ user, signOut }) {
           console.log('specialization', specialization);
           // setCounsellerSpecialization(specialization);
 
+          if (location.pathname === '/chat') {
+            // If already on the chat page, do not navigate elsewhere
+            return;
+          }
+
           if (role === 'customer') {
             navigate('/customer', { replace: true });
           } else if (role === 'counsellor') {
@@ -48,7 +55,7 @@ function AuthenticatedApp({ user, signOut }) {
     return () => {
       isMounted = false; // Cleanup function to prevent re-fetching
     };
-  }, [user, navigate]);
+  }, [user, navigate, location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -111,6 +118,7 @@ function App() {
         <Routes>
           <Route path="/customer" element={<CustomerDashboard />} />
           <Route path="/counsellor" element={<CounsellorDashboard />} />
+          <Route path="/chat" element={<ChatComponent />} />
         </Routes>
       </div>
     </Router>

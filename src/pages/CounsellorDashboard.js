@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUserAttributes } from '@aws-amplify/auth';
 import '../styles/CounsellorDashboard.css'; // Import CSS
+import ChatComponent from "./ChatComponent";
+import { useNavigate } from "react-router-dom";
 
 function CounsellorDashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [bookingRequests, setBookingRequests] = useState([]); // Renamed to bookingRequests
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -17,6 +20,7 @@ function CounsellorDashboard() {
     counselorName: '',
     specialization: ''
   });
+  const [chatRequest, setChatRequests] = useState([]);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -42,21 +46,34 @@ function CounsellorDashboard() {
       }
     }
 
-    fetchUserData();
+    const fetchMessageRequests = async () => {
+      try {
+        const response = await fetch("http://localhost:8082/api/messages/getRequests");
+        if (!response.ok) throw new Error("Failed to fetch message requests");
+        const data = await response.json();
+        console.log('data', data);
+        setChatRequests(data);
+      } catch (error) {
+        console.error("Error fetching message requests:", error);
+      }
+    };
 
-    // Mock data for booking requests (Replace with API call)
-    setBookingRequests([
-      { id: 1, counsellor: 'Dr. John Doe', date: 'March 20, 2:00 PM', specialization: 'Anxiety' },
-      { id: 2, counsellor: 'Dr. Jane Smith', date: 'March 21, 4:00 PM', specialization: 'Relationship Counseling' },
-    ]);
+    fetchUserData();
+    fetchMessageRequests();
+
+    // Poll every 5 seconds to refresh the data
+  const intervalId = setInterval(fetchMessageRequests, 5000); // Polling every 5 seconds
+
+  // Clean up interval when component unmounts
+  return () => clearInterval(intervalId);
   }, []);
 
   const openChatWindow = (booking) => {
     setSelectedBooking(booking);
-    setChatHistory([
-      { from: 'Counsellor', message: 'Hello, how can I help you today?' },
-      { from: 'Customer', message: 'I am feeling anxious and need some help.' },
-    ]);
+    // setChatHistory([
+    //   { from: 'Counsellor', message: 'Hello, how can I help you today?' },
+    //   { from: 'Customer', message: 'I am feeling anxious and need some help.' },
+    // ]);
     setIsChatOpen(true); // Open the chat window
   };
 
@@ -130,6 +147,23 @@ function CounsellorDashboard() {
     }
   };
 
+  const handleBookSession = () => {
+    const userData = { username: user.name, userType: "customer" };
+    navigate("/chat", { state: userData });
+};
+
+const formatDate = (dateString) => {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).format(new Date(dateString));
+};
+
   return (
     <div className="dashboard-container">
       {/* Header Section */}
@@ -152,14 +186,14 @@ function CounsellorDashboard() {
             </tr>
           </thead>
           <tbody>
-            {bookingRequests.map((booking) => (
+            {chatRequest.map((booking) => (
               <tr key={booking.id}>
-                <td>{booking.counsellor}</td>
-                <td>{booking.date}</td>
-                <td>{booking.specialization}</td>
+                <td>{booking.customerName}</td>
+                <td>{formatDate(booking.timestamp)}</td>
+                <td>{booking.session}</td>
                 <td>
-                  <button className="book-btn" onClick={() => openChatWindow(booking)}>
-                    Request
+                  <button className="book-btn" onClick={handleBookSession}>
+                    Start Chat
                   </button>
                 </td>
               </tr>
