@@ -52,7 +52,9 @@ function CounsellorDashboard() {
         if (!response.ok) throw new Error("Failed to fetch message requests");
         const data = await response.json();
         console.log('data', data);
-        setChatRequests(data);
+        const pendingBookings = data.filter((booking) => booking.bookingStatus === 'PENDING');
+        setChatRequests(pendingBookings);
+
       } catch (error) {
         console.error("Error fetching message requests:", error);
       }
@@ -61,12 +63,33 @@ function CounsellorDashboard() {
     fetchUserData();
     fetchMessageRequests();
 
+    
     // Poll every 5 seconds to refresh the data
-  const intervalId = setInterval(fetchMessageRequests, 5000); // Polling every 5 seconds
+    const intervalId = setInterval(fetchMessageRequests, 5000); // Polling every 5 seconds
 
-  // Clean up interval when component unmounts
-  return () => clearInterval(intervalId);
+    // Clean up interval when component unmounts
+    return () => clearInterval(intervalId);
+
   }, []);
+
+  useEffect(() => {
+    if (user && user.uuid) {
+        fetchConfirmedBookings();
+    }
+}, [user]);
+
+const fetchConfirmedBookings = async () => {
+  try {
+    console.log('confirmed', user.uuid);
+    const response = await fetch(`http://localhost:8081/api/bookings/counsellor/${user.uuid}`);
+    if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
+    const data = await response.json();
+    console.log('confirmed', data);
+    setConfirmedBookings(data);
+  } catch (error) {
+    console.error("Error fetching confirmed bookings:", error);
+  }
+};
 
   const openChatWindow = (booking) => {
     setSelectedBooking(booking);
@@ -147,22 +170,28 @@ function CounsellorDashboard() {
     }
   };
 
-  const handleBookSession = () => {
-    const userData = { username: user.name, userType: "customer" };
+  const handleBookSession = (selectChatRequest) => {
+    console.log('selectChatRequest', selectChatRequest)
+    const userData = { username: user.name, userType: user.role, senderId: user.uuid, receiverId: selectChatRequest.senderId, session:  selectChatRequest.session};
     navigate("/chat", { state: userData });
 };
 
-const formatDate = (dateString) => {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  }).format(new Date(dateString));
-};
+  const formatDateTime = (dateString) => {
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    }).format(new Date(dateString));
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  };
 
   return (
     <div className="dashboard-container">
@@ -172,6 +201,8 @@ const formatDate = (dateString) => {
       </div>
 
       {/* Page Title */}
+      {chatRequest.length > 0 && (
+      <>
       <h1 className="page-title">Booking Requests</h1>
 
       {/* Table for Booking Requests */}
@@ -189,10 +220,10 @@ const formatDate = (dateString) => {
             {chatRequest.map((booking) => (
               <tr key={booking.id}>
                 <td>{booking.customerName}</td>
-                <td>{formatDate(booking.timestamp)}</td>
+                <td>{formatDateTime(booking.timestamp)}</td>
                 <td>{booking.session}</td>
                 <td>
-                  <button className="book-btn" onClick={handleBookSession}>
+                  <button className="book-btn" onClick={() => handleBookSession(booking)}>
                     Start Chat
                   </button>
                 </td>
@@ -201,6 +232,8 @@ const formatDate = (dateString) => {
           </tbody>
         </table>
       </div>
+      </>
+      )}
 
       {/* Chat Modal Popup */}
       {isChatOpen && selectedBooking && (
@@ -230,7 +263,7 @@ const formatDate = (dateString) => {
         </div>
       )}
 
-      {/* Booking Form Popup */}
+      {/* Booking Form Popup
       {isBookingFormOpen && (
         <div className="booking-form-popup">
           <div className="booking-form-window">
@@ -275,27 +308,29 @@ const formatDate = (dateString) => {
             <button onClick={closeBookingForm}>Cancel</button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Table for Confirmed Bookings */}
       {confirmedBookings.length > 0 && (
         <div className="confirmed-bookings-container">
-          <h2>Confirmed Bookings</h2>
+          <h1 className="page-title">Confirmed Bookings</h1>
           <table className="counsellor-table">
             <thead>
               <tr>
-                <th>Counsellor</th>
+                <th>Customer</th>
                 <th>Date</th>
-                <th>Specialization</th>
+                <th>Time</th>
+                <th>Session</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {confirmedBookings.map((booking) => (
                 <tr key={booking.id}>
-                  <td>{booking.counsellor}</td>
-                  <td>{booking.date}</td>
-                  <td>{booking.specialization}</td>
+                  <td>{booking.customerName}</td>
+                  <td>{formatDate(booking.sessionDate)}</td>
+                  <td>{booking.sessionTime}</td>
+                  <td>{booking.session}</td>
                   <td>Confirmed</td>
                 </tr>
               ))}

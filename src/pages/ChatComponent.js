@@ -2,15 +2,21 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation  } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import "../styles/ChatComponent.css";
+import "../styles/Popup.css";
 
 function ChatComponent () {
     const location = useLocation();
     const navigate = useNavigate();
-    const { username, userType } = location.state || {}; // Ensure username is passed
+    const { username, userType, senderId, receiverId, session } = location.state || {}; // Ensure username is passed
 
     const [stompClient, setStompClient] = useState(null);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
+    const [showPopup, setShowPopup] = useState(false);
+    const [appointmentDate, setAppointmentDate] = useState('');
+    const [appointmentTime, setAppointmentTime] = useState('');
+    const [customerName, setCustomerName] = useState('');
 
     useEffect(() => {
         if (!username) {
@@ -62,28 +68,166 @@ function ChatComponent () {
         }
     };
 
-    return (
-        <div className="chat-container border rounded-lg p-4 shadow-lg">
-            <h2 className="text-lg font-bold mb-2">Chat - {username} ({userType})</h2>
-            <div className="chat-box border p-2 mb-2 h-64 overflow-auto">
-                {messages.map((msg, index) => (
-                    <div key={index} className={msg.sender === username ? "text-right" : "text-left"}>
-                        <span className="font-semibold">{msg.sender}:</span> {msg.content}
-                    </div>
-                ))}
-            </div>
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="border rounded p-1 w-full"
-                placeholder="Type a message..."
+      const leaveChat = () => {
+        if (userType === 'customer') {
+            navigate("/customer");
+        } else {
+            navigate("/counsellor");
+        }
+      };
+
+      const bookAppointment = () => {
+        console.log('Open')
+        setShowPopup(true); // Show the popup when Book Appointment is clicked
+      };
+    
+      const handleSubmitAppointment = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch("http://localhost:8081/api/bookings/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    customerId: receiverId,  // Assuming senderId is the logged-in customer
+                    customerName: customerName,
+                    counsellorId: senderId, // Assuming receiverId is the selected counselor
+                    counsellorName: username,
+                    sessionDate: appointmentDate,
+                    sessionTime: appointmentTime,
+                    session: session
+                }),
+            });
+    
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to book appointment: ${errorText}`);
+            }
+    
+            updateBookingStatus(senderId, receiverId);
+
+            alert(`Appointment booked for ${appointmentDate} at ${appointmentTime} with ${username}`);
+            setShowPopup(false); // Close the popup after booking
+    
+        } catch (error) {
+            console.error("Error booking appointment:", error.message);
+            alert("Failed to book appointment. Please try again.");
+        }
+    };    
+
+    const updateBookingStatus = async (senderId, receiverId) => {
+      const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    
+      try {
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        if (response.ok) {
+          const message = await response.text();
+          console.log(message); // Successfully updated
+        } else {
+          const error = await response.text();
+          console.error('Error:', error); // Handle failure
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+      }
+    };
+    
+      return (
+        <div className="chat-container">
+          <h2 className="chat-title">Chat - {username} ({userType})</h2>
+    
+          <div className="chat-box">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`message ${msg.sender === username ? "customer-message" : "counsellor-message"}`}
+              >
+                <span className="font-semibold">{msg.sender}:</span> {msg.content}
+              </div>
+            ))}
+          </div>
+    
+          <div className="message-input-container">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="message-input"
             />
-            <button onClick={sendMessage} className="bg-blue-500 text-white px-3 py-1 rounded mt-2">
-                Send
-            </button>
+            <div className="button-group">
+              <button className="send-btn" onClick={sendMessage}>Send</button>
+              {userType === "counsellor" && <button className="book-appointment-btn" onClick={bookAppointment}>Book Appointment</button>}
+              <button className="leave-chat-btn" onClick={leaveChat}>Leave Chat</button>
+            </div>
+          </div>
+
+          {showPopup && (
+            <div className="popup-overlay">
+                <div className="popup">
+                <h3>Book Appointment</h3>
+                <form onSubmit={handleSubmitAppointment}>
+                    <div>
+                    <label>Customer Name:</label>
+                    <input
+                        type="text"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        required
+                    />
+                    </div>
+                    <div>
+                    <label>Date:</label>
+                    <input
+                        type="date"
+                        value={appointmentDate}
+                        onChange={(e) => setAppointmentDate(e.target.value)}
+                        required
+                    />
+                    </div>
+                    <div>
+                    <label>Time:</label>
+                    <input
+                        type="time"
+                        value={appointmentTime}
+                        onChange={(e) => setAppointmentTime(e.target.value)}
+                        required
+                    />
+                    </div>
+                    <div>
+                    <label>Counsellor Name:</label>
+                    <input
+                        type="text"
+                        value={username}
+                        readOnly
+                    />
+                    </div>
+                    <div>
+                    <label>Session:</label>
+                    <input
+                        type="text"
+                        value={session}
+                        readOnly
+                    />
+                    </div>
+                    <div className="popup-buttons">
+                    <button type="submit">Submit</button>
+                    <button type="button" onClick={() => setShowPopup(false)}>Cancel</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+            )}
+
         </div>
-    );
+      );
+              
 };
 
 export default ChatComponent;

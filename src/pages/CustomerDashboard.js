@@ -13,6 +13,7 @@ function CustomerDashboard() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   // const [stompClient, setStompClient] = useState(null);
 
   // Fetch user details and counselor list
@@ -49,6 +50,25 @@ function CustomerDashboard() {
     fetchUserData();
     fetchCounsellors();
   }, []);
+
+  useEffect(() => {
+      if (user && user.uuid) {
+          fetchUpcomingAppointments();
+      }
+  }, [user]);
+  
+  const fetchUpcomingAppointments = async () => {
+    try {
+      console.log('confirmed', user.uuid);
+      const response = await fetch(`http://localhost:8081/api/bookings/customer/${user.uuid}`);
+      if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
+      const data = await response.json();
+      console.log('confirmed', data);
+      setUpcomingAppointments(data);
+    } catch (error) {
+      console.error("Error fetching confirmed bookings:", error);
+    }
+  };
 
   // // Establish WebSocket connection
   // useEffect(() => {
@@ -170,11 +190,15 @@ function CustomerDashboard() {
       return;
     }
     sendChatRequest(selectedCounsellor);
-    const userData = { username: user.name, userType: user.role };
+    const userData = { username: user.name, userType: user.role, senderId: user.uuid, receiverId: selectedCounsellor.uuid };
     console.log("Navigating to /chat with state:", userData); // Debugging log
     navigate("/chat", { state: userData, replace: true });
   };
   
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  };
 
   return (
     <div className="dashboard-container">
@@ -205,35 +229,33 @@ function CustomerDashboard() {
         </table>
       </div>
 
-      {/* {isChatOpen && (
-        <div className="chat-popup">
-          <div className="chat-window">
-            <div className="chat-header">
-              <h2>Chat with Dr. {selectedCounsellor.name}</h2>
-              <button className="close-chat-btn" onClick={closeChatWindow}>
-                X
-              </button>
-            </div>
-            <div className="chat-history">
-              {chatHistory.map((chat, index) => (
-                <div key={index} className={chat.sender === user.name ? "customer-message" : "counsellor-message"}>
-                  <p>
-                    <strong>{chat.sender}:</strong> {chat.content}
-                  </p>
-                </div>
+      {upcomingAppointments.length > 0 && (
+        <div className="confirmed-bookings-container">
+          <h1 className="page-title">Upcoming Appointments</h1>
+          <table className="counsellor-table">
+            <thead>
+              <tr>
+                <th>Counsellor</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Session</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {upcomingAppointments.map((appointment) => (
+                <tr key={appointment.id}>
+                  <td>{appointment.counsellorName}</td>
+                  <td>{formatDate(appointment.sessionDate)}</td>
+                  <td>{appointment.sessionTime}</td>
+                  <td>{appointment.session}</td>
+                  <td>Confirmed</td>
+                </tr>
               ))}
-            </div>
-            <div className="message-input">
-              <textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message here..."
-              />
-              { <button onClick={handleSendMessage}>Send</button> }
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
