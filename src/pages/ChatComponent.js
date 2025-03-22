@@ -149,7 +149,15 @@ function ChatComponent () {
                 key={index}
                 className={`message ${msg.sender === username ? "customer-message" : "counsellor-message"}`}
               >
-                <span className="font-semibold">{msg.sender}:</span> {msg.content}
+                {msg.type === 'JOIN' ? (
+                  <span className="font-semibold">{msg.sender} joined!</span>
+                ) : msg.type === 'LEAVE' ? (
+                  <span className="font-semibold">{msg.sender} left!</span>
+                ) : (
+                  <>
+                    <span className="font-semibold">{msg.sender}:</span> {msg.content}
+                  </>
+                  )}
               </div>
             ))}
           </div>
