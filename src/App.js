@@ -8,12 +8,12 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import CounsellorDashboard from './pages/CounsellorDashboard';
 import ChatComponent from './pages/ChatComponent';
 import awsExports from './aws-exports';
-import { useState, useEffect } from 'react';
+import { /*useState,*/ useEffect } from 'react';
 
 Amplify.configure(awsExports);
 
 function AuthenticatedApp({ user, signOut }) {
-  const [userRole, setUserRole] = useState(null);
+  // const [userRole, setUserRole] = useState(null);
   // const [counsellerSpecialization, setCounsellerSpecialization] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,7 +28,7 @@ function AuthenticatedApp({ user, signOut }) {
           console.log('User Attributes:', attributes);
 
           const role = attributes['custom:userType'];
-          setUserRole(role);
+          // setUserRole(role);
 
           const specialization = attributes['custom:specialization'];
           console.log('specialization', specialization);
@@ -63,9 +63,9 @@ function AuthenticatedApp({ user, signOut }) {
   };
 
   return (
-    <div>
-      <button onClick={handleSignOut}>Sign Out</button>
-      {userRole && <p>Role: {userRole}</p>}
+    <div className="app-container">
+      <button onClick={handleSignOut}  className="signout-btn">Sign Out</button>
+      {/* {userRole && <p>Role: {userRole}</p>} */}
     </div>
   );
 }
@@ -74,6 +74,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <h1 className="app-title">Better Wellness Counselling</h1>
         <Authenticator
           signUpAttributes={['custom:userType']}
           formFields={{

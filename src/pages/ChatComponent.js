@@ -107,7 +107,7 @@ function ChatComponent () {
     
             updateBookingStatus(senderId, receiverId);
 
-            alert(`Appointment booked for ${appointmentDate} at ${appointmentTime} with ${username}`);
+            alert(`Appointment booked for ${appointmentDate} at ${appointmentTime} with Dr. ${username} for 1 hour.`);
             setShowPopup(false); // Close the popup after booking
     
         } catch (error) {

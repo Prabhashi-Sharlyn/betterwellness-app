@@ -1,6 +1,44 @@
 .App {
   text-align: center;
+  align-items: center;
+  justify-content: center; 
 }
+
+.app-container {
+  text-align: center;
+  color: white;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #163050;
+}
+
+.signout-btn {
+  background-color: white;
+  color: #007bff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
+  width: auto; 
+  max-width: 150px;
+  margin: 0 5px; 
+  position: absolute; 
+  top: 10px;
+  right: 10px;
+}
+
+.signout-btn:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
 
 .App-logo {
   height: 40vmin;
