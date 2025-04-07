@@ -30,7 +30,8 @@ function CustomerDashboard() {
     const fetchCounsellors = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8080/api/users/counsellors"
+          // "http://localhost:8080/api/users/counsellors"
+          "https://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/users/counsellors"
         );
         if (!response.ok) throw new Error("Failed to fetch counsellors");
         const data = await response.json();
@@ -50,7 +51,8 @@ function CustomerDashboard() {
       try {
         console.log("confirmed", user.uuid);
         const response = await fetch(
-          `http://localhost:8081/api/bookings/customer/${user.uuid}`
+          // `http://localhost:8081/api/bookings/customer/${user.uuid}`
+          `https://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/booking/customer/${user.uuid}`
         );
         if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
         const data = await response.json();
@@ -68,11 +70,15 @@ function CustomerDashboard() {
 
   const saveUserToDatabase = async (userData) => {
     try {
-      const response = await fetch("http://localhost:8080/api/users/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
+      // const response = await fetch("http://localhost:8080/api/users/save", {
+      const response = await fetch(
+        "https://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/users/save",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        }
+      );
       const data = await response.text();
       if (!response.ok) throw new Error(data);
     } catch (error) {
@@ -83,7 +89,8 @@ function CustomerDashboard() {
   const sendChatRequest = async (selectedCounsellor) => {
     try {
       const response = await fetch(
-        "http://localhost:8082/api/messages/sendRequest",
+        // "http://localhost:8082/api/messages/sendRequest",
+        "https://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/messaging/sendRequest",
         {
           method: "POST",
           headers: {

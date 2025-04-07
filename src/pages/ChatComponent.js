@@ -26,7 +26,10 @@ function ChatComponent() {
       return;
     }
 
-    const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
+    // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
+    const socket = new SockJS(
+      `wss://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/messaging/ws?username=${username}`
+    );
 
     const client = new Client({
       webSocketFactory: () => socket,
@@ -89,7 +92,8 @@ function ChatComponent() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:8081/api/bookings/create",
+        // "http://localhost:8081/api/bookings/create",
+        "https://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/booking/create",
         {
           method: "POST",
           headers: {
@@ -125,7 +129,8 @@ function ChatComponent() {
   };
 
   const updateBookingStatus = async (senderId, receiverId) => {
-    const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    // const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    const url = `https://s9z18uh6ah.execute-api.ap-south-1.amazonaws.com/messaging/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
 
     try {
       const response = await fetch(url, {
