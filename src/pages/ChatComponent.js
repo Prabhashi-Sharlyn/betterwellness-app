@@ -28,7 +28,7 @@ function ChatComponent() {
 
     // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
     const socket = new SockJS(
-      `k8s-default-messagin-014f2160e5-560455948.ap-south-1.elb.amazonaws.com/ws?username=${username}`
+      `https://k8s-default-messagin-014f2160e5-560455948.ap-south-1.elb.amazonaws.com/ws?username=${username}`
     );
 
     const client = new Client({
