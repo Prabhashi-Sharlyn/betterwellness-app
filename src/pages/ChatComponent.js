@@ -28,7 +28,7 @@ function ChatComponent() {
 
     // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
     const socket = new SockJS(
-      `https://ga73dgtivj.execute-api.ap-south-1.amazonaws.com/messaging/ws?username=${username}`
+      `http://a9f60517bcb064ad38dede006780690e-eb8de20bad48bae1.elb.ap-south-1.amazonaws.com/api/messages/ws?username=${username}`
     );
 
     const client = new Client({
