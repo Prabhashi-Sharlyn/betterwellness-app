@@ -28,7 +28,7 @@ function ChatComponent() {
 
     // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
     const socket = new SockJS(
-      `wss://q7fvrk7cjf.execute-api.ap-south-1.amazonaws.com/messaging/ws?username=${username}`
+      `wss://ga73dgtivj.execute-api.ap-south-1.amazonaws.com/messaging/ws?username=${username}`
     );
 
     const client = new Client({
@@ -93,7 +93,7 @@ function ChatComponent() {
     try {
       const response = await fetch(
         // "http://localhost:8081/api/bookings/create",
-        "https://q7fvrk7cjf.execute-api.ap-south-1.amazonaws.com/bookings/create",
+        "https://ga73dgtivj.execute-api.ap-south-1.amazonaws.com/booking/create",
         {
           method: "POST",
           headers: {
@@ -130,7 +130,7 @@ function ChatComponent() {
 
   const updateBookingStatus = async (senderId, receiverId) => {
     // const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
-    const url = `https://q7fvrk7cjf.execute-api.ap-south-1.amazonaws.com/messaging/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    const url = `https://ga73dgtivj.execute-api.ap-south-1.amazonaws.com/messaging/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
 
     try {
       const response = await fetch(url, {
