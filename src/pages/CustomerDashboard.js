@@ -90,7 +90,7 @@ function CustomerDashboard() {
     try {
       const response = await fetch(
         // "http://localhost:8082/api/messages/sendRequest",
-        "http://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/sendRequest",
+        "https://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/sendRequest",
         {
           method: "POST",
           headers: {

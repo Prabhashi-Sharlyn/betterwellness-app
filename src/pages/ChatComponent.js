@@ -28,7 +28,7 @@ function ChatComponent() {
 
     // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
     const socket = new SockJS(
-      `http://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/ws?username=${username}`
+      `https://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/ws?username=${username}`
     );
 
     const client = new Client({
@@ -130,7 +130,7 @@ function ChatComponent() {
 
   const updateBookingStatus = async (senderId, receiverId) => {
     // const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
-    const url = `http://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    const url = `https://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
 
     try {
       const response = await fetch(url, {

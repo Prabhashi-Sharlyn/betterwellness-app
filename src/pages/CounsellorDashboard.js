@@ -34,7 +34,7 @@ function CounsellorDashboard() {
       try {
         const response = await fetch(
           // "http://localhost:8082/api/messages/getRequests"
-          "http://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/getRequests"
+          "https://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/getRequests"
         );
         if (!response.ok) throw new Error("Failed to fetch message requests");
         const data = await response.json();
