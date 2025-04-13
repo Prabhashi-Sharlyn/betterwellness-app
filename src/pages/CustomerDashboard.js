@@ -31,7 +31,7 @@ function CustomerDashboard() {
       try {
         const response = await fetch(
           // "http://localhost:8080/api/users/counsellors"
-          "https://ll01oaxvmk.execute-api.ap-south-1.amazonaws.com/users/counsellors"
+          "https://4g5lbmpswb.execute-api.ap-south-1.amazonaws.com/users/counsellors"
         );
         if (!response.ok) throw new Error("Failed to fetch counsellors");
         const data = await response.json();
@@ -52,7 +52,7 @@ function CustomerDashboard() {
         console.log("confirmed", user.uuid);
         const response = await fetch(
           // `http://localhost:8081/api/bookings/customer/${user.uuid}`
-          `https://ll01oaxvmk.execute-api.ap-south-1.amazonaws.com/booking/customer/${user.uuid}`
+          `https://4g5lbmpswb.execute-api.ap-south-1.amazonaws.com/booking/customer/${user.uuid}`
         );
         if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
         const data = await response.json();
@@ -72,7 +72,7 @@ function CustomerDashboard() {
     try {
       // const response = await fetch("http://localhost:8080/api/users/save", {
       const response = await fetch(
-        "https://ll01oaxvmk.execute-api.ap-south-1.amazonaws.com/users/save",
+        "https://4g5lbmpswb.execute-api.ap-south-1.amazonaws.com/users/save",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ function CustomerDashboard() {
     try {
       const response = await fetch(
         // "http://localhost:8082/api/messages/sendRequest",
-        "https://k8s-default-messagin-014f2160e5-1451796647.ap-south-1.elb.amazonaws.com/api/messages/sendRequest",
+        "https://itsbetterwellness.com/api/messages/sendRequest",
         {
           method: "POST",
           headers: {
