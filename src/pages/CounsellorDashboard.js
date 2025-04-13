@@ -32,9 +32,10 @@ function CounsellorDashboard() {
 
     const fetchMessageRequests = async () => {
       try {
-        const response = await fetch();
-        // ("http://localhost:8082/api/messages/getRequests");
-        ("https://itsbetterwellness.com/api/messages/getRequests");
+        const response = await fetch(
+          "http://localhost:8082/api/messages/getRequests"
+          // "https://itsbetterwellness.com/api/messages/getRequests"
+        );
         if (!response.ok) throw new Error("Failed to fetch message requests");
         const data = await response.json();
         console.log("data", data);
