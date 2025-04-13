@@ -33,8 +33,8 @@ function CounsellorDashboard() {
     const fetchMessageRequests = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8082/api/messages/getRequests"
-          // "https://itsbetterwellness.com/api/messages/getRequests"
+          // "http://localhost:8082/api/messages/getRequests"
+          "https://itsbetterwellness.com/api/messages/getRequests"
         );
         if (!response.ok) throw new Error("Failed to fetch message requests");
         const data = await response.json();
@@ -62,7 +62,7 @@ function CounsellorDashboard() {
         console.log("confirmed", user.uuid);
         const response = await fetch(
           // `http://localhost:8081/api/bookings/counsellor/${user.uuid}`
-          `hhttps://kf680ti6bi.execute-api.ap-south-1.amazonaws.com/booking/counsellor/${user.uuid}`
+          `https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/booking/counsellor/${user.uuid}`
         );
         if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
         const data = await response.json();
@@ -83,7 +83,7 @@ function CounsellorDashboard() {
     try {
       // const response = await fetch("http://localhost:8080/api/users/save", {
       const response = await fetch(
-        "https://kf680ti6bi.execute-api.ap-south-1.amazonaws.com/users/save",
+        "https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/users/save",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

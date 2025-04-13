@@ -28,8 +28,7 @@ function ChatComponent() {
 
     // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
     const socket = new SockJS(
-      // `https://itsbetterwellness.com/ws?username=${username}`
-      `http://localhost:8082/ws?username=${username}`
+      `https://itsbetterwellness.com/ws?username=${username}`
     );
     const client = new Client({
       webSocketFactory: () => socket,
@@ -93,7 +92,7 @@ function ChatComponent() {
     try {
       const response = await fetch(
         // "http://localhost:8081/api/bookings/create",
-        "https://kf680ti6bi.execute-api.ap-south-1.amazonaws.com/booking/create",
+        "https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/booking/create",
         {
           method: "POST",
           headers: {
@@ -129,8 +128,8 @@ function ChatComponent() {
   };
 
   const updateBookingStatus = async (senderId, receiverId) => {
-    const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
-    // const url = `https://itsbetterwellness.com/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    // const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    const url = `https://itsbetterwellness.com/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
 
     try {
       const response = await fetch(url, {
