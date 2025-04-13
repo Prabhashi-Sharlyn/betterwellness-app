@@ -89,7 +89,7 @@ function CustomerDashboard() {
   const sendChatRequest = async (selectedCounsellor) => {
     try {
       const response = await fetch(
-        // "http://localhost:8082/api/messages/sendRequest",
+        "http://localhost:8082/api/messages/sendRequest",
         // "https://itsbetterwellness.com/api/messages/sendRequest",
         {
           method: "POST",

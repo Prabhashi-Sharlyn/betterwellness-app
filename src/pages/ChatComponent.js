@@ -29,7 +29,7 @@ function ChatComponent() {
     // const socket = new SockJS(`http://localhost:8082/ws?username=${username}`);
     const socket = new SockJS();
     // `https://itsbetterwellness.com/ws?username=${username}`
-
+    `http://localhost:8082/ws?username=${username}`;
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -128,7 +128,7 @@ function ChatComponent() {
   };
 
   const updateBookingStatus = async (senderId, receiverId) => {
-    // const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
+    const url = `http://localhost:8082/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
     // const url = `https://itsbetterwellness.com/api/messages/updateBookingStatus?senderId=${receiverId}&receiverId=${senderId}`;
 
     try {
