@@ -31,7 +31,8 @@ function CustomerDashboard() {
       try {
         const response = await fetch(
           // "http://localhost:8080/api/users/counsellors"
-          "https://4g5lbmpswb.execute-api.ap-south-1.amazonaws.com/users/counsellors"
+          // "https://4g5lbmpswb.execute-api.ap-south-1.amazonaws.com/users/counsellors"
+          "http://a67e351f0451b497c8eb748b53762a9b-778536989.ap-south-1.elb.amazonaws.com/api/users/counsellors"
         );
         if (!response.ok) throw new Error("Failed to fetch counsellors");
         const data = await response.json();
