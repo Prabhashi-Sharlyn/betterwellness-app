@@ -4,6 +4,7 @@ import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import "../styles/ChatComponent.css";
 import "../styles/Popup.css";
+import API_BASE_URL from "../config/api";
 
 function ChatComponent() {
   const location = useLocation();
@@ -92,7 +93,7 @@ function ChatComponent() {
     try {
       const response = await fetch(
         // "http://localhost:8081/api/bookings/create",
-        "https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/booking/create",
+        `${API_BASE_URL}/booking/create`,
         {
           method: "POST",
           headers: {

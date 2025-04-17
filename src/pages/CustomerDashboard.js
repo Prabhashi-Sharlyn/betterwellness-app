@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import "../styles/CustomerDashboard.css";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/api";
 
 function CustomerDashboard() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ function CustomerDashboard() {
       try {
         const response = await fetch(
           // "http://localhost:8080/api/users/counsellors"
-          "https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/users/counsellors"
+          `${API_BASE_URL}/users/counsellors`
         );
         if (!response.ok) throw new Error("Failed to fetch counsellors");
         const data = await response.json();
@@ -52,7 +53,7 @@ function CustomerDashboard() {
         console.log("confirmed", user.uuid);
         const response = await fetch(
           // `http://localhost:8081/api/bookings/customer/${user.uuid}`
-          `https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/booking/customer/${user.uuid}`
+          `${API_BASE_URL}/booking/customer/${user.uuid}`
         );
         if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
         const data = await response.json();
@@ -71,14 +72,11 @@ function CustomerDashboard() {
   const saveUserToDatabase = async (userData) => {
     try {
       // const response = await fetch("http://localhost:8080/api/users/save", {
-      const response = await fetch(
-        "https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/users/save",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/users/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
       const data = await response.text();
       if (!response.ok) throw new Error(data);
     } catch (error) {

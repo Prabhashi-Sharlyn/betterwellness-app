@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import "../styles/CounsellorDashboard.css";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/api";
 
 function CounsellorDashboard() {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ function CounsellorDashboard() {
         console.log("confirmed", user.uuid);
         const response = await fetch(
           // `http://localhost:8081/api/bookings/counsellor/${user.uuid}`
-          `https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/booking/counsellor/${user.uuid}`
+          `${API_BASE_URL}/booking/counsellor/${user.uuid}`
         );
         if (!response.ok) throw new Error("Failed to fetch confirmed bookings");
         const data = await response.json();
@@ -82,14 +83,11 @@ function CounsellorDashboard() {
     console.log("User Data", userData);
     try {
       // const response = await fetch("http://localhost:8080/api/users/save", {
-      const response = await fetch(
-        "https://8e1cfmltvc.execute-api.ap-south-1.amazonaws.com/users/save",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/users/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
 
       const data = await response.text();
       if (response.ok) {
